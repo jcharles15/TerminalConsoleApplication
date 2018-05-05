@@ -143,18 +143,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ROOT.MicrosoftPointOfService.DeviceProperty.vb">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ROOT.MicrosoftPointOfService.LogicalDevice.vb">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ROOT.MicrosoftPointOfService.POSDevice.vb">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ROOT.MicrosoftPointOfService.ServiceObject.vb">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="TerminalAuthentication.vb" />
     <Compile Include="TimersModule.vb" />
     <Compile Include="Transaction.vb" />
