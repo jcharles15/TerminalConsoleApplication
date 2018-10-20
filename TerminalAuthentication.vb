@@ -622,7 +622,7 @@ Namespace CBJ_TERMINAL_SYSTEM
 
             'Complete Sign OFF
 
-            TerminalAuthentication.SignON.S = New SignON
+            SignON.S = New SignON
 
 
         End Sub

@@ -163,23 +163,10 @@ Namespace CBJ_TERMINAL_SYSTEM
             TerminalWindow.ResetWindow(True)
             Terminal.IBMKEY.OfflineLightOff()
 
-            ' TerminalAuthentication.SignON.S = New TerminalAuthentication.SignON
+            TerminalAuthentication.SignON.S = New TerminalAuthentication.SignON
 
-            ' Menu()
+            Menu()
 
-            MsgBox("Test Entered Item")
-
-            KeyedItemCode = "2147483647"
-
-            QuantityDataEntered = True
-            'SlashDataEntered = True
-            PriceDataEntered = True
-
-            QuantityData = "2"
-            'SlashData = "5"
-            PriceData = "500"
-
-            CustomerCheckoutProcedure.ProcessEnteredItem()
 
 
 

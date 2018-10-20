@@ -18,6 +18,7 @@ Namespace CBJ_TERMINAL_SYSTEM
 
         Public Shared DBItemTable As DataTable
         Public Shared TRItemTable As DataTable
+        Public Shared Found As Boolean = False
 
         Public Sub New()
 
@@ -25,12 +26,19 @@ Namespace CBJ_TERMINAL_SYSTEM
 
             TRItemTable = New DataTable
 
-            TRItemTable.Columns.Add("ItemName", GetType(String))
+            TRItemTable.Columns.Add("ITEMCODE", GetType(String))
             TRItemTable.Columns.Add("UPC", GetType(String))
+            TRItemTable.Columns.Add("QUANTITY", GetType(Integer))
             TRItemTable.Columns.Add("XPRICE", GetType(Double))
-
-
-
+            TRItemTable.Columns.Add("DEPTNO", GetType(String))
+            TRItemTable.Columns.Add("UNITPRICE", GetType(Double))
+            TRItemTable.Columns.Add("SALEPRICE", GetType(Double))
+            TRItemTable.Columns.Add("DISCOUNTABLE", GetType(String)) 'INDICATOR
+            TRItemTable.Columns.Add("SALETYPE", GetType(Integer)) 'INDICATOR
+            TRItemTable.Columns.Add("TAX", GetType(Integer))      'INDICATOR
+            TRItemTable.Columns.Add("WEIGHT", GetType(Integer))   'INDICATOR
+            TRItemTable.Columns.Add("PRICEMETHOD", GetType(Integer))   'INDICATOR
+            TRItemTable.Columns.Add("SALEQTY", GetType(Integer))   'INDICATOR
 
 
             NumOfItems = 0
@@ -301,8 +309,16 @@ Namespace CBJ_TERMINAL_SYSTEM
 
                     Dim ItemName As String = Row("PosDescription")
                     Dim UPC As Integer = Row("Barcode")
-                    Dim Price As Decimal = Convert.ToDecimal(Row("Price"))
-                    Dim PriceRequired As String = Row("PriceRequired")
+                    Dim UnitPrice As Decimal = Convert.ToDecimal(Row("Price"))
+                    Dim PriceRequired As Integer = Row("PriceRequired")
+                    Dim QuantityRequired As Integer = Row("QuantityRequired")
+                    Dim WeightRequired As Integer = Row("WeightRequired")
+
+                    Dim SaleType As Integer = Row("SaleType")
+                    Dim SalePriceMethod As Integer = Row("SalePriceMethod")
+                    Dim SaleGroupPrice As Decimal = Row("SaleGroupPrice")
+                    Dim SaleQuantity As Integer = Row("SaleQuantity")
+                    Dim SaleLimit As Integer = Row("SaleLimit")
 
                     Dim Quantity As Integer = Convert.ToInt32(TerminalSystem.QuantityData)
                     Dim PriceDataString As String = TerminalSystem.PriceData
@@ -317,9 +333,15 @@ Namespace CBJ_TERMINAL_SYSTEM
                     PriceMod = Convert.ToDecimal(PriceDataString / 100)
 
 
+
+
                     Terminal.Display.DisplayData(ItemName)
 
-                    If TerminalSystem.QuantityDataEntered AndAlso TerminalSystem.SlashDataEntered AndAlso TerminalSystem.PriceDataEntered Then
+
+
+
+
+                    If TerminalSystem.QuantityDataEntered AndAlso TerminalSystem.SlashDataEntered AndAlso TerminalSystem.PriceDataEntered Then  ''OVERRIDES PRICES IN DATABASE
 
                         'A Combination of Quantity, Deal Quantity and Price Mode
                         'Otherwise referred to as a Split Package Price Override Key Sequence
@@ -328,7 +350,7 @@ Namespace CBJ_TERMINAL_SYSTEM
 
                         XPrice = Quantity * PriceMod / DealQuantity
 
-                    ElseIf TerminalSystem.QuantityDataEntered AndAlso TerminalSystem.PriceDataEntered Then
+                    ElseIf TerminalSystem.QuantityDataEntered AndAlso TerminalSystem.PriceDataEntered Then   ''OVERRIDES PRICES IN DATABASE
 
                         'Only Quantity and Price Mod Data Entered
                         'Referred to as a Price Override
@@ -337,7 +359,7 @@ Namespace CBJ_TERMINAL_SYSTEM
 
                         XPrice = Quantity * PriceMod
 
-                    ElseIf TerminalSystem.PriceDataEntered Then
+                    ElseIf TerminalSystem.PriceDataEntered Then   ''OVERRIDES PRICES IN DATABASE
 
                         'Only Price Mod Data Entered
                         'Referred to as a Price Override
@@ -346,23 +368,58 @@ Namespace CBJ_TERMINAL_SYSTEM
 
                         XPrice = Quantity * PriceMod
 
+                    Else
 
-                    ElseIf TerminalSystem.QuantityDataEntered Then
+                        Terminal.Display.DisplayDataL2_LeftJustified(FormatNumber(UnitPrice))
+
+                        XPrice = Quantity * UnitPrice
+
+                    End If
+
+
+
+                    If TerminalSystem.QuantityDataEntered And SalePriceMethod = 0 Then
 
                         'Only Quantity Data Entered
                         'Operator specifed how many items were being rung.
 
-                        Terminal.Display.DisplayDataL2_LeftRightJustified(Quantity.ToString, FormatNumber(Price))
+                        Terminal.Display.DisplayDataL2_LeftRightJustified(Quantity.ToString, FormatNumber(UnitPrice))
 
-                        XPrice = Quantity * Price
-
-                    Else
-
-                        Terminal.Display.DisplayDataL2_LeftJustified(FormatNumber(Price))
-
-                        XPrice = Quantity * Price
+                        XPrice = Quantity * UnitPrice
 
                     End If
+
+
+
+                    'Check if item is on sale
+
+                    If SalePriceMethod > 0 Then
+
+                        'Sale Pricing is Active
+
+
+                        If SalePriceMethod = 1 Then
+
+                            'Group Price / Quantity. Full Set Not Required
+
+                            Dim LPrice As Decimal = Quantity * (SaleGroupPrice / SaleQuantity)
+
+                            Terminal.Display.DisplayDataL2_LeftRightJustified(Quantity.ToString + " @ " + SaleQuantity.ToString + "/" + FormatNumber(SaleGroupPrice), FormatNumber(LPrice) + " RC")
+
+                            XPrice = LPrice
+
+                        End If
+
+
+                    End If
+
+
+
+
+
+
+
+
 
 
 
@@ -416,7 +473,14 @@ Namespace CBJ_TERMINAL_SYSTEM
                     End If
 
 
-                    Transaction.TRItemTable.Rows.Add(ItemName, UPC, XPrice)
+
+                    Transaction.TRItemTable.Rows.Add(ItemName, UPC, Quantity, XPrice, SalePriceMethod)
+
+
+
+
+
+
 
 
                     Try
@@ -450,6 +514,11 @@ Namespace CBJ_TERMINAL_SYSTEM
 
         End Sub
 
+        Public Shared Sub OnSaleCheck()
+
+
+
+        End Sub
 
 
         Private Shared Sub ResetEnteredData()
