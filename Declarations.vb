@@ -59,7 +59,7 @@
 
     'Database
 
-    Public DBConnect As New MySqlConnection("Server=192.168.10.10;Database=pointofsale;Uid=admincj;Pwd=guitarhero3;")
+    Public DBConnect As New MySqlConnection("Server=192.168.86.11;Database=pointofsale;Uid=admincj;Pwd=guitarhero3;")
     Public DBDataset
     Public DBTable As DataTable
     Public Command As MySqlCommand

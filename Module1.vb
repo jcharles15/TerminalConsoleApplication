@@ -51,8 +51,6 @@ Module Module1
 
         MainMenu()
 
-        'Dim MenuOption As Integer = Val(Console.ReadLine())
-
         Dim MenuOption As Integer = Val(Console.ReadLine())
 
         Select Case MenuOption
